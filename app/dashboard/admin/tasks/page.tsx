@@ -5,6 +5,7 @@ import { DashboardLayout } from "@/app/components/DashboardLayout";
 import { Card } from "@/app/components/Card";
 import { Button } from "@/app/components/Button";
 import { Input } from "@/app/components/Input";
+import { ChatWidget } from "@/app/components/ChatWidget";
 
 interface Task {
   id: string;
@@ -177,6 +178,7 @@ export default function TasksPage() {
   };
 
   return (
+    <>
     <DashboardLayout>
       <div className="max-w-6xl">
         <div className="flex justify-between items-center mb-8">
@@ -371,5 +373,10 @@ export default function TasksPage() {
         )}
       </div>
     </DashboardLayout>
+
+     {/* Chat Widget */}
+      <ChatWidget />
+
+    </>
   );
 }

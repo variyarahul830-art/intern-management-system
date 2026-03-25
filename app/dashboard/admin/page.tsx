@@ -3,9 +3,12 @@
 import { useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
 import { DashboardLayout } from "@/app/components/DashboardLayout";
+import { StatsGrid } from "@/app/components/StatsGrid";
+import { QuickLinksSection } from "@/app/components/QuickLinksSection";
 import { Card } from "@/app/components/Card";
+import { ChatWidget } from "@/app/components/ChatWidget";
 
-interface DashboardStats {
+interface AdminDashboardStats {
   totalInterns: number;
   activeTasks: number;
   pendingTasks: number;
@@ -14,7 +17,7 @@ interface DashboardStats {
 
 export default function AdminDashboard() {
   const { data: session } = useSession();
-  const [stats, setStats] = useState<DashboardStats>({
+  const [stats, setStats] = useState<AdminDashboardStats>({
     totalInterns: 0,
     activeTasks: 0,
     pendingTasks: 0,
@@ -51,107 +54,110 @@ export default function AdminDashboard() {
     fetchStats();
   }, []);
 
+  const statsData = [
+    {
+      label: "Total Interns",
+      value: stats.totalInterns,
+      icon: "👥",
+      color: "blue" as const,
+    },
+    {
+      label: "Active Tasks",
+      value: stats.activeTasks,
+      icon: "⚡",
+      color: "yellow" as const,
+    },
+    {
+      label: "Pending Tasks",
+      value: stats.pendingTasks,
+      icon: "⏳",
+      color: "red" as const,
+    },
+    {
+      label: "Completed",
+      value: stats.completedTasks,
+      icon: "✓",
+      color: "green" as const,
+    },
+  ];
+
+  const quickLinks = [
+    {
+      label: "Manage Interns",
+      href: "/dashboard/admin/interns",
+      description: "View & edit intern records",
+      icon: "👥",
+    },
+    {
+      label: "Create New Task",
+      href: "/dashboard/admin/tasks",
+      description: "Assign tasks to interns",
+      icon: "✓",
+    },
+    {
+      label: "Manage Mentors",
+      href: "/dashboard/admin/mentors",
+      description: "Mentor assignments & info",
+      icon: "🎓",
+    },
+    {
+      label: "View Reports",
+      href: "/dashboard/admin/reports",
+      description: "Analytics & exports",
+      icon: "📊",
+    },
+  ];
+
   return (
-    <DashboardLayout>
-      <div className="max-w-6xl">
-        <h1 className="text-3xl font-bold mb-8 text-gray-900">Admin Dashboard</h1>
+    <>
+      <DashboardLayout>
+        <div className="max-w-7xl">
+          <h1 className="text-4xl font-bold mb-8 text-gray-900">
+            Admin Dashboard
+          </h1>
 
-        {loading ? (
-          <p>Loading statistics...</p>
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            <Card className="border-l-4 border-blue-500">
-              <h3 className="text-gray-600 text-sm font-medium">Total Interns</h3>
-              <p className="text-3xl font-bold text-gray-900 mt-2">
-                {stats.totalInterns}
-              </p>
-            </Card>
+          {/* Stats Grid */}
+          <StatsGrid stats={statsData} loading={loading} />
 
-            <Card className="border-l-4 border-yellow-500">
-              <h3 className="text-gray-600 text-sm font-medium">
-                Active Tasks
-              </h3>
-              <p className="text-3xl font-bold text-gray-900 mt-2">
-                {stats.activeTasks}
-              </p>
-            </Card>
+          {/* Bottom Section */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-8">
+            <QuickLinksSection links={quickLinks} />
 
-            <Card className="border-l-4 border-orange-500">
-              <h3 className="text-gray-600 text-sm font-medium">
-                Pending Tasks
-              </h3>
-              <p className="text-3xl font-bold text-gray-900 mt-2">
-                {stats.pendingTasks}
-              </p>
-            </Card>
-
-            <Card className="border-l-4 border-green-500">
-              <h3 className="text-gray-600 text-sm font-medium">
-                Completed Tasks
-              </h3>
-              <p className="text-3xl font-bold text-gray-900 mt-2">
-                {stats.completedTasks}
-              </p>
+            <Card title="System Info">
+              <div className="space-y-4">
+                <div className="flex justify-between pb-3 border-b border-gray-200">
+                  <span className="text-sm text-gray-600">Name</span>
+                  <span className="text-sm font-semibold text-gray-900">
+                    {session?.user?.name ?? "—"}
+                  </span>
+                </div>
+                <div className="flex justify-between pb-3 border-b border-gray-200">
+                  <span className="text-sm text-gray-600">Email</span>
+                  <span className="text-sm font-semibold text-gray-900">
+                    {session?.user?.email ?? "—"}
+                  </span>
+                </div>
+                <div className="flex justify-between pb-3 border-b border-gray-200">
+                  <span className="text-sm text-gray-600">Role</span>
+                  <span className="text-sm font-semibold text-gray-900">
+                    Administrator
+                  </span>
+                </div>
+                <div className="flex justify-between text-sm">
+                  <span className="text-gray-600">Status</span>
+                  <span className="inline-flex items-center gap-2 text-green-600 font-semibold">
+                    <span className="inline-block w-2 h-2 bg-green-500 rounded-full"></span>
+                    Online
+                  </span>
+                </div>
+              </div>
             </Card>
           </div>
-        )}
-
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-8">
-          <Card title="Quick Actions">
-            <ul className="space-y-2 text-sm">
-              <li>
-                <a
-                  href="/dashboard/admin/interns"
-                  className="text-blue-600 hover:underline"
-                >
-                  → Manage Interns
-                </a>
-              </li>
-              <li>
-                <a
-                  href="/dashboard/admin/tasks"
-                  className="text-blue-600 hover:underline"
-                >
-                  → Create New Task
-                </a>
-              </li>
-              <li>
-                <a
-                  href="/dashboard/admin/mentors"
-                  className="text-blue-600 hover:underline"
-                >
-                  → Manage Mentors
-                </a>
-              </li>
-              <li>
-                <a
-                  href="/dashboard/admin/interns"
-                  className="text-blue-600 hover:underline"
-                >
-                  → View All Interns
-                </a>
-              </li>
-            </ul>
-          </Card>
-
-          <Card title="System Information">
-            <div className="text-sm text-gray-600 space-y-2">
-              <p>
-                <strong>Welcome:</strong> {session?.user?.name}
-              </p>
-              <p>
-                <strong>Email:</strong> {session?.user?.email}
-              </p>
-              <p>
-                <strong>Role:</strong> Administrator
-              </p>
-              <p className="text-xs text-gray-400 mt-4">
-                Last login: {new Date().toLocaleString()}
-              </p>
-            </div>
-          </Card>
         </div>
-      </div>
-    </DashboardLayout>
+      </DashboardLayout>
+
+      {/* Chat Widget */}
+      <ChatWidget />
+    </>
   );
 }

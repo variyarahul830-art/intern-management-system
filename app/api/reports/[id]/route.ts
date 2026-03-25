@@ -68,6 +68,8 @@ export async function PUT(
 
     const { id } = await params;
     const updates = await request.json();
+    
+    console.log("Update report request:", { id, updates });
 
     const updated = await hasuraMutation<{ update_reports_by_pk: ReportRow | null }>(
       UPDATE_REPORT,
@@ -87,6 +89,8 @@ export async function PUT(
             : null,
       }
     );
+    
+    console.log("Mutation response:", updated);
 
     if (!updated.update_reports_by_pk) {
       return NextResponse.json({ error: "Report not found" }, { status: 404 });
@@ -94,8 +98,12 @@ export async function PUT(
 
     return NextResponse.json(mapReportRow(updated.update_reports_by_pk));
   } catch (error) {
+    console.error("Update report error:", error);
     return NextResponse.json(
-      { error: "Failed to update report" },
+      { 
+        error: "Failed to update report",
+        details: error instanceof Error ? error.message : "Unknown error"
+      },
       { status: 500 }
     );
   }
